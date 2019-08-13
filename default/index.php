@@ -1,11 +1,20 @@
 <?php
 
 switch ($_GET['action'] ?? '') {
-    case 'mysql':
-        $dsn = 'mysql:host=' . getenv('MYSQL_HOST') .
-            ';port=' . getenv('MYSQL_PORT') .
-            ';dbname=' . getenv('MYSQL_DBNAME');
-        $pdo = new PDO($dsn, getenv('MYSQL_USER'), getenv('MYSQL_PASSWORD'));
+    case 'mysql':    
+        $MYSQL_PORT = getenv('MYSQL_PORT', true) ?: getenv('MYSQL_PORT');
+        $HOSTPORT_ARRAY_0  = explode("//", getenv('MYSQL_PORT'));
+        $HOSTPORT_ARRAY_1  = explode(":", $HOSTPORT_ARRAY_0[1]);
+        $host       = $HOSTPORT_ARRAY_1[0];
+        $port       = $HOSTPORT_ARRAY_1[1];
+        $dbname     = getenv('MYSQL_DBNAME', true) ?: getenv("MYSQL_DBNAME");
+        $dsn        = "mysql:host=$host;port=$port;dbname=$dbname";
+        $options    = array(
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+              );
+        $username   = getenv('MYSQL_USER', true) ?: getenv('MYSQL_USER');
+        $password   = getenv('MYSQL_PASSWORD', true) ?: getenv('MYSQL_PASSWORD');
+        $pdo = new PDO($dsn, $username, $password);
         echo $pdo ? 'success' : 'fail';
         exit;
 
@@ -34,7 +43,6 @@ switch ($_GET['action'] ?? '') {
         <h1>Congratulations!</h1>
         <ul>
             <li><a href="?action=mysql">check MySQL</a></li>
-            <li><a href="?action=redis">check Redis</a></li>
             <li><a href="?action=phpinfo">phpinfo()</a></li>
         </ul>
     </body>
